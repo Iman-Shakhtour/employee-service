@@ -28,12 +28,13 @@ jobs:
             ${{ runner.os }}-m2-
 
       - name: Build with Maven
+        working-directory: ./employee_service
         run: mvn clean package --batch-mode
-
       - name: Run tests
+        working-directory: ./employee_service
         run: mvn test --batch-mode
-
       - name: Static analysis (Checkstyle)
+        working-directory: ./employee_service
         run: mvn checkstyle:check
 
   docker-build-push:
@@ -43,7 +44,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    steps: 
+    steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -57,17 +58,18 @@ jobs:
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+        with:
+          region: ${{ secrets.AWS_REGION }}
 
       - name: Build, tag & push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./employee_service
           push: true
           tags: |
             703127269779.dkr.ecr.us-east-1.amazonaws.com/employee_service:${{ github.sha }}
             703127269779.dkr.ecr.us-east-1.amazonaws.com/employee_service:latest
+
 
   deploy:
     name: Deploy to ECS
@@ -81,6 +83,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region:            ${{ secrets.AWS_REGION }}
+
       - name : Determine environment
         id: env
         run: |
@@ -96,6 +99,7 @@ jobs:
             develop)   echo "ENV=development" >> $GITHUB_ENV ;;
             *)         echo "ENV=development" >> $GITHUB_ENV ;;
           esac
+
 
       - name: Deploy to the right ECS service
         run: |
