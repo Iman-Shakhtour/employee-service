@@ -29,9 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository repository;
     @Autowired
     private EmployeeModelAssembler assembler;
-    @Autowired
-    private DepartmentClient departmentClient;
-
+    
     @Override
     public CollectionModel<EntityModel<EmployeeDTO>> findAll() {
         List<EntityModel<EmployeeDTO>> employees = repository.findAll().stream() //
@@ -45,11 +43,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ResponseEntity<?> newEmployee(EmployeeDTO newEmployee) {
-        ResponseEntity<?> validationResponse = validateDepartment(newEmployee.getDepartmentId());
-        if (validationResponse != null) {
-            return validationResponse;
-        }
-
+       
         Employee employee = EmployeeMapper.toEntity(newEmployee);
         employee = repository.save(employee);
         EntityModel<EmployeeDTO> entityModel = assembler.toModel(EmployeeMapper.toDTO(employee));
@@ -108,7 +102,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private ResponseEntity<?> validateDepartment(Long departmentId) {
         try {
-            departmentClient.one(departmentId).getContent();
             return null; // No error, validation passed
         } catch (FeignException e) {
             log.error("Error calling department-service: {}", e.getMessage());
@@ -118,5 +111,14 @@ public class EmployeeServiceImpl implements EmployeeService {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Department service is unavailable");
         }
     }
+
+  @Override
+public ResponseEntity<?> deleteByEmail(String email) {
+    Employee employee = repository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee with EMAIL " + email + " not found."));
+    
+    repository.delete(employee);
+    return ResponseEntity.noContent().build();
+}
 
 }
