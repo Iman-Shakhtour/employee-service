@@ -29,9 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository repository;
     @Autowired
     private EmployeeModelAssembler assembler;
-    @Autowired
-    private DepartmentClient departmentClient;
-
+    
     @Override
     public CollectionModel<EntityModel<EmployeeDTO>> findAll() {
         List<EntityModel<EmployeeDTO>> employees = repository.findAll().stream() //
@@ -104,7 +102,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private ResponseEntity<?> validateDepartment(Long departmentId) {
         try {
-            departmentClient.one(departmentId).getContent();
             return null; // No error, validation passed
         } catch (FeignException e) {
             log.error("Error calling department-service: {}", e.getMessage());
