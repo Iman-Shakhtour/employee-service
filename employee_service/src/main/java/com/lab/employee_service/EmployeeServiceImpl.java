@@ -45,11 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ResponseEntity<?> newEmployee(EmployeeDTO newEmployee) {
-        ResponseEntity<?> validationResponse = validateDepartment(newEmployee.getDepartmentId());
-        if (validationResponse != null) {
-            return validationResponse;
-        }
-
+       
         Employee employee = EmployeeMapper.toEntity(newEmployee);
         employee = repository.save(employee);
         EntityModel<EmployeeDTO> entityModel = assembler.toModel(EmployeeMapper.toDTO(employee));
