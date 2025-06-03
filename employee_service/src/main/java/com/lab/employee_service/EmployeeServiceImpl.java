@@ -119,4 +119,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+  @Override
+public ResponseEntity<?> deleteByEmail(String email) {
+    Employee employee = repository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee with EMAIL " + email + " not found."));
+    
+    repository.delete(employee);
+    return ResponseEntity.noContent().build();
+}
+
 }

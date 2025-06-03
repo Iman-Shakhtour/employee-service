@@ -47,4 +47,9 @@ class EmployeeController {
   ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
     return employeeService.deleteById(id);
   }
+ @DeleteMapping("/employees/email/{email}")
+public ResponseEntity<?> deleteByEmail(@PathVariable String email) {
+    return employeeService.deleteByEmail(email);
+}
+
 }
